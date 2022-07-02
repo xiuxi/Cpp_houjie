@@ -1,0 +1,7 @@
+.vscode/launch.json
+main.cpp
+.vscode/c_cpp_properties.json
+.vscode/settings.json
+.vscode/tasks.json
+2jjallocator.exe
+main.exe

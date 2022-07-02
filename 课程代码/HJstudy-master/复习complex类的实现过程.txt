@@ -1,0 +1,21 @@
+防卫式定义    #ifndef   __COMPLEX__
+             #define   __COMPLEX__
+             ...
+             #endif
+
+类的主体
+
+class complex
+{
+    public: 
+        构造函数   参数默认值   初始化值
+        操作符重载-作为成员函数
+        返回私有变量（数据未被改动，加const）
+
+    private:
+
+    友元函数（同一类的各对象互为友元类）
+}
+
+return by value/reference
+函数内部创建对象接收计算结果只能by value;

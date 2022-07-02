@@ -1,0 +1,575 @@
+//------------------------------------------------------
+// object直接访问私有成员的两个特列
+// 1. 类内的object
+// 2. 友元函数
+//------------------------------------------------------
+class Object;
+ostream& operator<<(ostream& os, const Object& obj);
+
+class Object{
+public:
+    Object(const int &a=0):a_(a){}
+    Object(const Object& obj){
+        a_ = obj.a_;
+    }
+
+    int getData()const {
+        return a_;
+    }
+
+    void func(const Object& obj){
+        cout<<"I can visit private members "<<obj.a_ << endl;
+    }
+
+private:
+    int a_;
+friend void func(const Object& obj);
+};
+
+ostream& operator<<(ostream& os, const Object& obj)
+{
+   os << obj.getData();
+   return os;
+}
+
+
+void func(const Object& obj){
+    cout<<"I also can visit private members "<<obj.a_ << endl;
+}
+————————————————
+版权声明：本文为CSDN博主「leeayu」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_23225073/article/details/103104471
+
+
+#include <iostream>
+using namespace std;
+
+//----------------------------------------------------------
+// conversion function
+//----------------------------------------------------------
+class Fraction{
+public:
+    // 如果是non-explict-one-argument-constructor，某些时候可以将argument的实例直接转为类的类型
+    // 比如test函数中的第二个
+    // explicit 禁止其他类型转为此类类型，只能使用自带的构造函数
+    explicit Fraction(const int& num=0, const int& den=1):numerator_(num), denominator_(den){
+        cout<<"numerator_ = "<<numerator_<<endl;   
+    }
+    // 转换函数，将Fraction转为一个double类型
+    // 顾名思义，将一个类型转换为另一个类型，其实就是两种类型经过一个函数的转换过程
+    operator double(){
+        return static_cast<double>(1.0*numerator_/denominator_);
+    }
+
+    // + 重载
+    Fraction operator+(const Fraction& f){
+        return Fraction(this->numerator_*f.getDenominator()+this->denominator_*f.getNumerator(),
+        this->denominator_*f.getDenominator());
+    }
+
+    // 测试函数
+    static void test(){
+        Fraction f(3,5);
+        // 1. 调用转换函数
+        // 2. 会首先调用non-explicit构造函数，将3转为 Fraction(3,1), 调用重载加号
+        // 上面两种函数只能出现一个，否则编译器会报错 ambiguous，分不清楚应该调用哪一个
+        // 如果给constructor加上explicit的化，就禁止了这种默认的转换
+        cout<<"fraction: "<<f+3<<endl;
+    }
+
+    int getNumerator()const {return numerator_;}
+    int getDenominator()const{return denominator_;}
+private:
+    int numerator_;
+    int denominator_;
+};
+
+// ostream& operator<<(ostream& os, const Fraction& f){
+//     os<<1.0*f.getNumerator()/f.getDenominator();
+// }
+
+
+int main( int argc, char** argv )
+{
+    Fraction::test();
+
+    return 0;
+}
+————————————————
+版权声明：本文为CSDN博主「leeayu」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_23225073/article/details/103104471
+
+
+#include <iostream>
+
+
+class Stone {
+public:
+    Stone(const int &w) : weight_(w) {}
+    bool operator<(const Stone &s) const { return this->weight_ < s.weight_; }
+private:
+    int weight_;
+};
+
+// 仿函数写法，需要实例化才能使用
+template<typename T>
+struct compare_st {
+    bool operator()(const T &a, const T &b) const {
+        return a < b;
+    }
+};
+
+compare_st<Stone> comp;
+
+
+// 模拟需要输入compare的函数接口
+template<typename T, typename Compare>
+bool compare_func(const T &a, const T &b, const Compare &cmp) {
+    return cmp(a, b);
+}
+
+int main() {
+    Stone s1(2);
+    Stone s2(3);
+    std::cout << compare_func(s1, s2, std::less<Stone>()) << std::endl; // 使用std标准库
+    std::cout << compare_func(s1, s2, compare_st<Stone>()) << std::endl; // 使用自定义compare仿函数
+    std::cout << compare_func(s1, s2, [&](const Stone &s1, const Stone &s2) { return s1 < s2; }) << std::endl; // 使用lambda函数
+
+    return 0;
+}
+————————————————
+版权声明：本文为CSDN博主「leeayu」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_23225073/article/details/103104471
+
+
+/*
+ * cppprimer.cpp
+ *
+ *  Created on: 2013.11.24
+ *      Author: Caroline
+ */
+
+/*eclipse cdt, gcc 4.8.1*/
+
+#include <iostream>
+#include <memory>
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <deque>
+
+//-----------------------------------------------------
+// member template： 和functor结合使用
+//-----------------------------------------------------
+class DebugDelete {
+public:
+    DebugDelete(std::ostream &s = std::cerr) : os(s) {}
+
+    // functor
+    // member template
+    template<typename T>
+    void operator()(T *p) const {
+        os << "deleting unique_ptr" << std::endl;
+        delete p;
+    }
+private:
+    std::ostream &os;
+};
+
+
+//-----------------------------------------------------
+// member template： 用于排序
+//-----------------------------------------------------
+template<typename T>
+class Blob {
+public:
+
+    // 应对不同类型，可以排序
+    template <typename It>
+    Blob (It b, It e) {
+        std::sort(b, e); //容器需要允许被排序
+    }
+};
+
+// 类外的写法
+//template<typename T>
+//template<typename It>
+//Blob<T>::Blob(It b, It e) {
+//    std::sort(b, e); //容器需要允许被排序
+//}
+
+int main(void) {
+
+    // delete using functor
+    double *p = new double;
+    DebugDelete d;
+    d(p); //使用时, 可以自动推倒模板
+
+    int *ip = new int;
+    DebugDelete()(ip);
+
+    std::unique_ptr<int, DebugDelete> pi(new int, DebugDelete());
+    std::unique_ptr<std::string, DebugDelete> ps(new std::string, DebugDelete());
+
+
+    // 构建不同的容器类型
+    int ia[] = {9, 8, 7, 6, 5};
+    std::vector<long> vi = {5, 4, 3, 2, 1, 0};
+    std::deque<std::string> w = {"lady", "girl", "woman", "now"};
+
+    // 构建Blob对象，构造函数自动会对其进行排序
+    Blob<int> a1(std::begin(ia), std::end(ia));
+    Blob<int> a2(vi.begin(), vi.end());
+    Blob<std::string> a3(w.begin(), w.end());
+
+    // 打印输出
+    std::cout << "int ia[] = ";
+    for (const auto i : ia) { std::cout << i << " "; }
+    std::cout << std::endl;
+
+    std::cout << "std::vector<long> vi = ";
+    for (const auto i : vi) { std::cout << i << " "; }
+    std::cout << std::endl;
+
+    std::cout << "std::list<const char*> w = ";
+    for (const auto i : w) { std::cout << i << " "; }
+    std::cout << std::endl;
+
+    return 0;
+
+}
+————————————————
+版权声明：本文为CSDN博主「leeayu」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_23225073/article/details/103104471
+
+
+//-----------------------------------------------------
+// member template: Pair Class Experiment
+//-----------------------------------------------------
+namespace member_template{
+
+template<typename T1, typename T2>
+class Pair {
+public:
+    T1 first;
+    T2 second;
+    Pair() : first(T1()), second(T2()) {}
+    Pair(const T1 &t1, const T2 &t2) : first(t1), second(t2) {}
+
+    // member template 支持传入不同类型的pair
+    template<typename U1, typename U2>
+    Pair(const Pair<U1, U2> &p):first(p.first), second(p.second) {}
+
+    Pair(const Pair<T1, T2> &p) : first(p.first), second(p.second) {}
+
+};
+
+
+/**
+ * @brief: base class
+ */
+class Shape {
+    friend std::ostream &operator<<(std::ostream &os, const Shape &p);
+
+public:
+    Shape(const std::string &s = "Shape") : name_(s) { id_ = id_count_++; }
+    virtual double getParam() const { return 0; };
+
+protected:
+    std::string name_;
+    int id_; // 从0开始
+    static int id_count_;
+};
+
+// init static member
+int Shape::id_count_ = 0;
+
+/**
+ * @brief: output class shape information
+ */
+std::ostream &operator<<(std::ostream &os, const Shape &p) {
+    os << "name: " << p.name_ << " id: " << p.id_;
+    return os;
+}
+
+
+/**
+ * @brief: Derive class
+ */
+class Circle : public Shape {
+    friend std::ostream &operator<<(std::ostream &os, const Circle &c);
+
+public:
+    Circle(const std::string &name = "Circle", const double &r = 0) : Shape(name), radius_(r) {}
+    double getParam() const override { return radius_; }
+private:
+    double radius_;
+};
+
+/**
+ * @brief: output class Circle information
+ */
+std::ostream &operator<<(std::ostream &os, const Circle &c) {
+    os << "name: " << c.name_ << " id: " << c.id_ << " radius: " << c.radius_;
+    return os;
+}
+
+void PairTest() {
+    // a Shape object
+    Pair<Shape, Shape> p1(Shape("Shape1"), Shape("Shape2"));
+
+    // a Circle object
+    Pair<Circle, Circle> p2(Circle("Circle1", 0.5), Circle("Circle2", 0.6));
+
+    // use a shape to contain a circle,
+    Pair<Shape, Shape *> p3(Circle("Circle3", 0.7), new Circle("Circle4", 0.8));
+    std::cout << "现在只能访问shape     : " << (p3.first) << std::endl; // 现在只能访问shape的部分
+    std::cout << "dynamic_cast        : " << *dynamic_cast<Circle *> (p3.second) << std::endl; // 如果使用指针，可以利用多态，访问circle部分
+    std::cout << "no dynamic_cast     : " << *p3.second << std::endl; // 如果使用指针，可以利用多态，访问circle部分
+
+
+    // 需要member template才能支持这种写法
+    Pair<Shape, Shape> p4(p2);
+    std::cout << "非指针存储不能访问circle: " << p4.first << std::endl; // 还是仍然不能访问circle部分，还是必须利用多态，member template的作用就是多提供了一种初始化方式
+
+    Pair<Circle *, Circle *> pp1(new Circle("pointer-circle1", 0.6), new Circle("pointer-circle2", 0.7));
+    Pair<Shape *, Shape *> pp2(pp1);
+    std::cout << "指针存储可以访问circle : " << *pp1.first << std::endl; //不需要
+
+}
+
+}// member template  
+————————————————
+版权声明：本文为CSDN博主「leeayu」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_23225073/article/details/103104471
+
+
+
+
+//-----------------------------------------------------
+// specialization
+// 解决问题： 模板中的某些类型，可以用更高效或者不同的方法来处理的时候
+// 比如针对两点间draw line的问题，如果是两个int 点，那么可以使用更好
+// 的breshham算法来处理，其他的类型正常处理
+//-----------------------------------------------------
+namespace specialization{
+template<typename T>
+class DrawLine {
+public:
+    DrawLine() { std::cout << "draw line using normal algorithm\n"; }
+};
+
+template<>
+class DrawLine<int> {
+public:
+    DrawLine() { std::cout << "draw line using Breshham algorithm\n"; }
+};
+
+// 类模板实例化的时候，会优先使用特化的模板
+void test(){
+    DrawLine<double> dl1; // draw line using normal algorithm
+    DrawLine<std::string> dl2; // draw line using normal algorithm
+    DrawLine<int> dl3; //draw line using Breshham algorithm
+
+}
+
+} //specialization namespace end
+————————————————
+版权声明：本文为CSDN博主「leeayu」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_23225073/article/details/103104471
+
+
+//-----------------------------------------------------
+// partial specialization
+// 有两种偏特化：
+// 1. 个数的偏，模板中的某些类型，提供一些默认值
+// 2. 范围的偏
+// 解决问题： 模板中的某些类型，提前绑定
+//-----------------------------------------------------
+#include <vector>
+namespace parial_specialization{
+// -----------------【1. 个数的偏】-----------------------
+class BoolAllocator;
+
+// 一些类型根据模板正常推导
+template<typename T, typename Alloc=std::allocator<T>>
+class Container {
+public:
+    Container() { std::cout << "normal contailer\n"; }
+};
+
+// 针对某些特殊的类型，就自己提供后面的模板参数
+// 比如存储bool类型的时候，由于只有1bit，如果使用int存储就会很浪费
+// 那么就提供一个自我实现的高效的BoolAllocator
+template<typename Alloc>
+class Container<bool, Alloc> {
+public:
+    Container() { std::cout << "bool contailer\n"; }
+};
+
+
+// -----------------【2. 范围的偏】-----------------------
+// 非指针的是使用这种模板推导
+template<typename T>
+class Storage {
+public:
+    Storage() { std::cout << "non-pointer like object\n"; }
+};
+
+// 指针使用这种模板推导
+template<typename T>
+class Storage<T *> {
+public:
+    Storage() { std::cout << "pointer like object\n"; }
+};
+
+void test() {
+    // 1. 个数的偏
+    Container<int> c1; // normal contailer
+    Container<bool, BoolAllocator> c2; // bool contailer
+
+    // 2. 范围的偏
+    Storage<int> s1; // non-pointer like object
+    Storage<int*> s2; // pointer like object
+}
+}//parial_specialization namespace end
+————————————————
+版权声明：本文为CSDN博主「leeayu」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_23225073/article/details/103104471
+
+
+
+//-------------------------------------------------------------
+// template template parameter 模板模板参数
+//-------------------------------------------------------------
+#include <string>
+#include <iostream>
+#include <list>
+#include <deque>
+
+namespace template_template_parameter{
+
+template<typename T, template<typename T> class Container>
+class XCls {
+public:
+    Container<T> c;
+
+    XCls() {
+        // 预先开辟capacity=100的内存
+        c.resize(100);
+    }
+};
+
+template<typename T>
+using Lst = std::list<T, std::allocator<T>>;   //Note: make sure your environment support C++2.0
+
+void template_template_parameter_test() {
+    std::cout << "test_template_template_parameters_1()" << std::endl;
+
+    //!	XCls<string, list> mylist;
+    //[Error] expected a template of type 'template<class T> class Container', got 'template<class _Tp, class _Alloc> class std::list'
+    XCls<int, Lst> mylist;        //Note: make sure your environment support C++2.0
+    std::cout << "size    : " << mylist.c.size() << std::endl;
+}
+
+
+//------------------------------------------------
+// no template template parameter
+//------------------------------------------------
+template<class T, class Sequence=std::deque<T>>
+class Stack {
+public:
+    Stack() {
+        c.resize(100);
+    }
+    Sequence c;
+};
+
+void no_template_template_parameter_test(){
+    Stack<int> s1;
+    Stack<std::string, std::list<std::string>> s2;
+}
+
+} //namespace
+————————————————
+版权声明：本文为CSDN博主「leeayu」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_23225073/article/details/103104471
+
+//------------------------------------------------------------
+// variadic templates: 不定长参数的用法
+//                     这也太牛逼了....
+//------------------------------------------------------------
+namespace variadic_templates{
+// 1. 用于function template types
+void print() {}
+template<typename T, typename ... Types>
+void print(const T &first_arg, const Types &... args) {
+    std::cout << first_arg << " sizeof: " << sizeof...(args) << std::endl;
+    print(args...);
+}
+
+// 2. 用于template parameters
+// 3. 用于function parameters
+
+}//namespace variadic_templates end
+————————————————
+版权声明：本文为CSDN博主「leeayu」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_23225073/article/details/103104471
+
+
+
+
+//------------------------------------------------------------------
+// vptr & vtbl
+//------------------------------------------------------------------
+namespace vtpr_vtbl{
+class Base{
+public:
+    Base(const double& d=0):data_(d){}
+    virtual void vfun1(){std::cout<<"Base vfun1\n";}
+    virtual void vfun2(){std::cout<<"Base vfun2\n";}
+    virtual void vfun3(){std::cout<<"Base vfun3\n";}
+    void func(){}
+private:
+    double data_; // 8byte    
+    int ii_; //8byte
+    // vptr 4byte
+    // bptb 4byte
+};//24 Byte
+
+#pragma pack(4) // 可设置对齐方式
+// 64bit system 默认 8byte内存对齐
+class Derive:public Base{
+public:
+    Derive():Base(1){}
+    virtual void vfun1()override{ std::cout<<"Derive vfun1\n";}
+    void funfun() {}
+protected:
+    int d_;//4
+    char c_;//4
+};//28
+
+class DeriveDerive:public Derive{
+public:
+    DeriveDerive(){}
+    double dd_;//8
+};//36
+
+void test(){
+    cout<<sizeof(Base)<<endl;//24
+    cout<<sizeof(Derive)<<endl;//28????
+    cout<<sizeof(DeriveDerive)<<endl;//36
+
+    // (*(b->vptr)[0])(b);
+    // (*b->vptr[0])(b);
+}
+}
+————————————————
+版权声明：本文为CSDN博主「leeayu」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_23225073/article/details/103104471
+
+
+
+
+
+

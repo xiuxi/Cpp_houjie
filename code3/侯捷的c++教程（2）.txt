@@ -1,0 +1,82 @@
+#ifndef __MYSTRING__
+#define __MYSTRING__
+
+class String
+{
+public: 
+   // 普通构造函数                       
+   String(const char* cstr=0);                     
+   // 拷贝构造函数
+   String(const String& str);
+   // 赋值运算符重载                    
+   String& operator=(const String& str);         
+   ~String();  
+   // 转换为c风格字符串                                  
+   char* get_c_str() const { return m_data; }
+private:
+   char* m_data;
+};
+
+#include <cstring>
+
+// 拷贝构造函数和赋值运算函数的重点在于
+// 对于有pointer成员的class需要分配内存
+// 这一步编译器不能自动完成
+inline
+String::String(const char* cstr)
+{
+   if (cstr) {
+       // 由于c风格字符串结尾有一个'\0'，所以size+1
+      m_data = new char[strlen(cstr)+1];
+      strcpy(m_data, cstr);
+   }
+   else {   
+      m_data = new char[1];
+      *m_data = '\0';
+   }
+}
+
+inline
+String::~String()
+{
+   delete[] m_data;
+}
+
+inline
+String& String::operator=(const String& str)
+{
+    // 防止用户给自身赋值，造成析构后赋值错误
+   if (this == &str)
+      return *this;
+    // 释放原先位置内存
+   delete[] m_data;
+   // 重新申请内存
+   m_data = new char[ strlen(str.m_data) + 1 ];
+   // c风格字符串拷贝
+   strcpy(m_data, str.m_data);
+   return *this;
+}
+
+inline
+String::String(const String& str)
+{
+    // 之所以可以直接访问m_data私有成员，是因为相同的class的各个objects互为friends
+    // 图中的func的写法是合理的，虽然直接访问了私有成员 
+    // 注意这种写法，仅限类内成员函数和friend成员函数
+   m_data = new char[ strlen(str.m_data) + 1 ];
+   strcpy(m_data, str.m_data);
+}
+
+#include <iostream>
+using namespace std;
+
+ostream& operator<<(ostream& os, const String& str)
+{
+   os << str.get_c_str();
+   return os;
+}
+
+#endif
+————————————————
+版权声明：本文为CSDN博主「leeayu」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_23225073/article/details/103094404

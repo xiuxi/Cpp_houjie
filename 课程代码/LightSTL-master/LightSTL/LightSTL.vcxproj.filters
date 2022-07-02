@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="头文件\smart_ptr">
+      <UniqueIdentifier>{3a5e57bb-c310-4e0d-b43c-6a1555356f6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\smart_ptr\detail">
+      <UniqueIdentifier>{8ef5cf5d-a7c9-45f6-8e31-e2df6a800e0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="smart_ptr\detail\deleter.hpp">
+      <Filter>头文件\smart_ptr\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="smart_ptr\unique_ptr.hpp">
+      <Filter>头文件\smart_ptr</Filter>
+    </ClInclude>
+    <ClInclude Include="smart_ptr\shared_ptr.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="smart_ptr\detail\ref_count.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="smart_ptr\weak_ptr.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\uninitialized_storage.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="vector.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="iterator\iterator_traits.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\addressof.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="smart_ptr\enable_shared_from_this.hpp">
+      <Filter>头文件\smart_ptr</Filter>
+    </ClInclude>
+    <ClInclude Include="iterator\iterator.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="test\addressof_test.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="test\test_uninitialized_storage.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\smart_ptr\detail\deleter.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\smart_ptr\detail\ref_count.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\allocator.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\smart_ptr\enable_shared_from_this.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\smart_ptr\shared_ptr.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\smart_ptr\weak_ptr.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\smart_ptr\unique_ptr.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\allocator_traits.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="test\test_vector.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="list.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="array.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="test\test_allocator.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="test\test_list.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="deque.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="forward_list.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
+  </ItemGroup>
+</Project>
