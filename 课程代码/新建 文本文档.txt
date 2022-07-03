@@ -1,0 +1,97 @@
+侯捷c++课程笔记: 继承与虚函数
+mb5fe55b6d43deb 2021-09-24
+virtual
+继承不仅继承父类的数据成员，同时继承父类方法的调用权。
+继承通常与virtual搭配，实现多态
+
+class Shape
+{
+    virtual void draw() const = 0;//pure virtual
+    virtual void error(const std::string& msg);//virtual
+    int ObjectId() const; //non virtual
+};
+class Rectangle: public Shape{};
+class Ellipse: public Shape{};
+成员函数有三种:
+
+non-virtual,不希望derived class override
+virtual,有默认的定义，但希望derived class override
+pure virtual,无默认定义，derived class 必须 override
+继承加复合的构造
+
+当一个类继承自某个类，同时自己包含有一个类，在构造时，先执行基类的构造函数，再是成员构造函数，最后才是自己的。析构相反
+
+#include<iostream>
+using namespace std;
+class Base
+{
+public:
+    Base()
+    {
+        cout<<"base ctor"<<endl;
+    }
+    ~Base()
+    {
+        cout<<"base dtor"<<endl;
+    }
+};
+class Comp
+{
+public:
+    Comp()
+    {
+        cout<<"comp ctor"<<endl;
+    }
+    ~Comp()
+    {
+        cout<<"comp dtor"<<endl;
+    }
+};
+class Derived:public Base
+{
+    Comp c;
+public:
+    Derived()
+    {
+        cout<<"Derived ctor"<<endl;
+    }
+    ~Derived()
+    {
+        cout<<"Derived dtor"<<endl;
+    }
+};
+int main()
+{
+    Derived d;
+    return 0;
+}
+output:
+base ctor
+comp ctor
+Derived ctor
+Derived dtor
+comp dtor
+base dtor
+例子:template method
+
+因为操作一个文件的步骤大抵相同，只有对文件的具体操作也就是serialize()需要应用程序具体指定。故可以先把大致的应用程序框架实现，这里用到了设计模式：模板方法。
+
+CDocument::
+OnFileOpen()
+{
+    //...
+    Serialize();//实际形式:this->Serialize()
+    //...
+}
+class CMyDoc :
+    public CDocument
+{
+    virtual Serialize(){...}
+}
+main()
+{
+    CMyDoc myDoc;
+    myDoc.OnFileOpen();//实际形式:CDocument::OnFileOpen(&myDoc)
+}
+我们可以先实现CDocument类，将Serialize()函数设为virtual，让将来继承的子类实现。
+在子类可以调用OnFileOpen()，同时自己的地址作为this指针。在函数内调用Serialize()时，执行的是自己定义的Serialize()；
